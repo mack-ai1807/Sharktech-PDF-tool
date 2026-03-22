@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 36" fill="none">
+  <defs>
+    <linearGradient id="fin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5CC5A"/>
+      <stop offset="50%" stop-color="#D4A017"/>
+      <stop offset="100%" stop-color="#A87800"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#F0C040"/>
+      <stop offset="40%" stop-color="#C9960C"/>
+      <stop offset="100%" stop-color="#A07000"/>
+    </linearGradient>
+  </defs>
+  <!-- Dorsal fin -->
+  <path d="M22 17 L28 5 L34 17" fill="url(#fin)" opacity="0.95"/>
+  <!-- Main body -->
+  <path d="M4 20 Q14 14 26 18 Q36 21 44 17 L50 12 L48 20 L50 27 L44 23 Q34 27 20 24 Q10 26 4 22 Z" fill="url(#body)"/>
+  <!-- Pectoral fin -->
+  <path d="M12 21 L7 29 L18 23 Z" fill="url(#body)" opacity="0.8"/>
+  <!-- Eye -->
+  <circle cx="8" cy="19.5" r="1.5" fill="#0A0A0A"/>
+</svg>

@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ───────────────────────────────────────────────── */
+:root {
+  --gold-500: #D4A017;
+  --gold-400: #F5CC5A;
+  --gold-glow: rgba(212, 160, 23, 0.18);
+  --toolbar-bg: #09090b;
+  --canvas-bg: #0c0c0e;
+}
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  html,
+  body,
+  #root {
+    @apply h-full w-full overflow-hidden;
+  }
+
+  body {
+    @apply bg-[#0c0c0e] text-surface-100 font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Premium dark scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(212, 160, 23, 0.2);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 160, 23, 0.4);
+  }
+}
+
+@layer components {
+
+  /* ── Toolbar ──────────────────────────────────────────────────── */
+  .toolbar-glass {
+    background: linear-gradient(180deg, #0d0d10 0%, #09090b 100%);
+    border-bottom: 1px solid rgba(212, 160, 23, 0.18);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.05),
+      0 4px 32px rgba(0,0,0,0.5),
+      0 0 0 0.5px rgba(212,160,23,0.06) inset;
+  }
+
+  /* PDF canvas container */
+  .pdf-canvas-container {
+    @apply bg-[#1a1a1e];
+  }
+
+  /* ── Toolbar buttons ──────────────────────────────────────────── */
+  .toolbar-btn {
+    @apply flex items-center justify-center w-8 h-8 rounded-lg
+           text-[#8a8a9a] hover:text-white
+           transition-all duration-150 cursor-pointer
+           disabled:opacity-30 disabled:cursor-not-allowed;
+    background: transparent;
+  }
+
+  .toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: scale(1.05);
+    color: rgba(255,255,255,0.9);
+  }
+
+  .toolbar-btn.active,
+  .toolbar-btn[aria-pressed="true"] {
+    background: rgba(212, 160, 23, 0.18);
+    color: var(--gold-400);
+    box-shadow: 0 0 0 1px rgba(212, 160, 23, 0.3), 0 2px 8px rgba(212,160,23,0.1);
+  }
+
+  /* ── Toolbar group pill ───────────────────────────────────────── */
+  .toolbar-group {
+    @apply flex items-center gap-0.5 px-1 rounded-xl;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* ── Sidebar tabs ─────────────────────────────────────────────── */
+  .sidebar-tab {
+    @apply px-3 py-2 text-xs font-medium uppercase tracking-wider
+           text-[#6e6e85] hover:text-white
+           border-b-2 border-transparent
+           transition-colors duration-150 cursor-pointer;
+  }
+
+  .sidebar-tab.active {
+    color: var(--gold-400);
+    border-bottom-color: var(--gold-500);
+  }
+
+  /* ── Gold glow pulse (for unsaved indicator) ──────────────────── */
+  .gold-pulse {
+    background: var(--gold-500);
+    box-shadow: 0 0 6px 2px rgba(212, 160, 23, 0.5);
+    animation: goldPulse 2s ease-in-out infinite;
+  }
+}
+
+/* ── Animations ───────────────────────────────────────────────────── */
+@keyframes goldPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px 2px rgba(212, 160, 23, 0.5); }
+  50%       { opacity: 0.7; box-shadow: 0 0 10px 4px rgba(212, 160, 23, 0.3); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes borderSpin {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Drop zone utilities ──────────────────────────────────────────── */
+.drop-zone-float {
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.drop-zone-card-enter {
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.drop-zone-text-enter {
+  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+/* Dot grid background */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(212,160,23,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Shimmer loading skeleton */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(212,160,23,0.08) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── PDF.js text layer ────────────────────────────────────────────── */
+.textLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.25;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.textLayer span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.textLayer ::selection {
+  background: rgba(212, 160, 23, 0.35);
+}
+
+/* ── Search highlights ────────────────────────────────────────────── */
+.textLayer span.highlight {
+  background: rgba(212, 160, 23, 0.3) !important;
+  border-radius: 2px;
+}
+
+.textLayer span.highlight.selected {
+  background: rgba(212, 160, 23, 0.65) !important;
+  box-shadow: 0 0 0 1px rgba(212, 160, 23, 0.8);
+  border-radius: 2px;
+}
