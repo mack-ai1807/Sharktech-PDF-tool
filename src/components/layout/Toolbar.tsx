@@ -10,6 +10,7 @@ import { SharkLogo } from "@/components/ui/SharkLogo";
 import { HIGHLIGHT_COLORS } from "@/types/annotation";
 import { MergeDialog } from "@/components/operations/MergeDialog";
 import { SplitDialog } from "@/components/operations/SplitDialog";
+import { useFileOpen } from "@/hooks/useFileOpen";
 
 // ─── Icon helper ──────────────────────────────────────────────────────────────
 
@@ -320,10 +321,10 @@ export const Toolbar: React.FC = () => {
   const [showMerge, setShowMerge] = useState(false);
   const [showSplit, setShowSplit] = useState(false);
 
-  // File open is wired in Story 1.2 — placeholder handler for now
+  const { openNativeDialog } = useFileOpen();
+
   function handleOpenFile() {
-    // Story 1.2 will wire: tauriBridge.openFileDialog() → useFileOpen hook
-    window.dispatchEvent(new CustomEvent("sharkview:open-file"));
+    void openNativeDialog();
   }
 
   return (
