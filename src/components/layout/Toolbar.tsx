@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useViewerStore } from "@/stores/useViewerStore";
 import { useUIStore, type ToolbarMode } from "@/stores/useUIStore";
 import { useAnnotationStore } from "@/stores/useAnnotationStore";
