@@ -93,7 +93,7 @@ function ThumbnailItem({ pdfDoc, pageIndex, isCurrent, onClick }: ThumbnailItemP
     >
       {/* Thumbnail image / placeholder */}
       <div
-        className="w-full bg-shark-700 rounded overflow-hidden flex items-center justify-center"
+        className="relative w-full bg-shark-700 rounded overflow-hidden flex items-center justify-center"
         style={{ width: THUMBNAIL_WIDTH, aspectRatio: "3/4" }}
       >
         {imgSrc ? (
@@ -104,7 +104,7 @@ function ThumbnailItem({ pdfDoc, pageIndex, isCurrent, onClick }: ThumbnailItemP
             draggable={false}
           />
         ) : (
-          <span className="text-shark-500 text-[9px] animate-pulse">…</span>
+          <div className="absolute inset-0 skeleton-shimmer" />
         )}
       </div>
 

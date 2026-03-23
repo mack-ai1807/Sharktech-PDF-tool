@@ -28,9 +28,12 @@
 |---|---|---|---|
 | MED-1 | Native `<select>` zoom control | ✅ FIXED | `ZoomControl()` in `Toolbar.tsx` replaced with fully styled custom dropdown — dark glass, gold active state, chevron rotation, outside-click close |
 | UI-3 | Zoom `<select>` uses native browser styling | ✅ FIXED | (covered by MED-1 above) |
-| UI-NEW | No `focus-visible` ring on toolbar buttons | ✅ FIXED | `.toolbar-btn:focus-visible { box-shadow: 0 0 0 2px rgba(212,160,23,0.55); }` added to `index.css` |
+| UI-1 | No loading skeleton on PDF pages | ✅ FIXED | `LoadingView` in `PdfDocument.tsx` replaced with `skeleton-shimmer` page mockup + text line placeholders |
+| UI-NEW | No `focus-visible` ring on interactive elements | ✅ FIXED | Global `button/a/input/select/[role="option"]/[tabindex]:focus-visible` rule in `index.css` with gold double-ring box-shadow |
 | UI-NEW | Toolbar tool groups had no visual grouping | ✅ FIXED | Navigation, annotation tools, and PDF operations sections now wrapped in `.toolbar-group` pill containers |
 | UI-NEW | Sidebar tab indicator was static `border-b-2` | ✅ FIXED | Replaced with a sliding gold indicator bar using `translateX(${activeIdx * 100}%)` with `transition: transform 0.22s cubic-bezier(0.16,1,0.3,1)` |
+| HIGH-4 | Page Manager has no toolbar button | ✅ FIXED | Added Page Manager button in toolbar after Split button, renders `<PageManager />` in modal overlay |
+| LOGO | Logo had white background, tiny on dark UI | ✅ FIXED | Python PIL removed white bg → transparent PNG, auto-cropped from 2000×2000 to 1549×724, renders directly on dark surfaces via `<img object-contain>` |
 | SERVER-1 | Vite build produced single 1MB+ JS chunk | ✅ FIXED | `vite.config.ts` — added `manualChunks` splitting `vendor-react`, `vendor-pdfjs`, `vendor-pdflib`, `vendor-zustand` into separate chunks |
 | SERVER-NEW | Vite dev cold-start could be faster | ✅ IMPROVED | Added `server.warmup.clientFiles` for main entry points; raised `chunkSizeWarningLimit` to 1500 |
 
@@ -73,9 +76,8 @@
 **Root cause:** Signatures are rendered as DOM elements on top of the PDF. They don't get written into the actual PDF bytes (no flatten). The signature image needs to be embedded as a pdf-lib XObject.
 **Fix (v1.1):** Implement signature flatten in `pdf-export.ts` using pdf-lib image embedding.
 
-### HIGH-4: Page Manager has no UI entry point
-**File:** `src/stores/viewerStore.ts` — `setPageManagerOpen` action exists but toolbar has no button for it.
-**Fix:** Add a "Reorder Pages" button in the toolbar, wired to `setPageManagerOpen(true)`.
+### HIGH-4: ~~Page Manager has no UI entry point~~ ✅ RESOLVED
+**Fix applied 2026-03-23:** Added Page Manager button in `Toolbar.tsx` after Split button. Renders `<PageManager />` in a modal overlay with backdrop click-to-dismiss.
 
 ---
 
@@ -106,8 +108,8 @@
 
 ## 🟢 LOW / UI-UX ISSUES
 
-### UI-1: No loading skeleton on PDF pages
-Pages show a plain `animate-pulse` grey box while off-screen. The `.skeleton-shimmer` CSS class was added to `index.css` but not yet applied to page placeholders.
+### UI-1: ~~No loading skeleton on PDF pages~~ ✅ RESOLVED
+**Fix applied 2026-03-23:** `LoadingView` in `PdfDocument.tsx` replaced with `skeleton-shimmer` page mockup rectangle + text line placeholders. Gold-tinted filename display.
 
 ### UI-2: ~~Sticky note delete uses `window.confirm()`~~ ✅ RESOLVED
 (Covered by BUG-6 above.)
@@ -164,13 +166,17 @@ Some shortcuts shown may not match actual implementation.
 - Keyboard shortcuts — ✅
 - Auto-update check (Tauri only) — ✅
 - Toast notifications — ✅ NEW (success/error/info, auto-dismiss)
-- SharkTech Global logo — ✅ NEW (gold metallic shark mark + wordmark)
+- SharkTech Global + VCPility logo — ✅ NEW (transparent PNG, auto-cropped, direct render on dark surfaces)
 - `animate-fade-in` CSS animation — ✅ FIXED
 - Custom zoom dropdown — ✅ FIXED (dark glass, gold active, chevron)
 - Toolbar group pills (navigation / tools / PDF ops) — ✅ NEW
 - Focus-visible rings on all toolbar buttons — ✅ NEW
 - Animated sidebar tab indicator (sliding gold bar) — ✅ NEW
+- Skeleton loader on PDF page loading — ✅ NEW (replaced spinner)
+- Page Manager accessible via toolbar button — ✅ NEW
+- Global focus-visible gold ring on all interactive elements — ✅ NEW
 - Vite code splitting (vendor-react, vendor-pdfjs, vendor-pdflib, vendor-zustand) — ✅ NEW
+- Vite server warmup for faster cold starts — ✅ NEW
 
 ---
 
@@ -179,11 +185,11 @@ Some shortcuts shown may not match actual implementation.
 |---|---|---|
 | 🟠 H | HIGH-2: Real PDF annotation objects via pdf-lib | 4h |
 | 🟠 H | HIGH-3: Signature flatten/burn-in | 2h |
-| 🟠 H | HIGH-4: Page Manager toolbar button | 30m |
+| ~~🟠 H~~ | ~~HIGH-4: Page Manager toolbar button~~ | ✅ Done |
 | ~~🟡 M~~ | ~~MED-1: Custom zoom dropdown~~ | ✅ Done |
 | 🟡 M | MED-4: Wire SearchHighlight into PdfDocument | 1h |
 | 🟡 M | MED-5: Change default highlight color | 15m |
-| 🟢 L | UI-1: Shimmer skeleton for page placeholders | 30m |
+| ~~🟢 L~~ | ~~UI-1: Shimmer skeleton for page placeholders~~ | ✅ Done |
 | 🟢 L | UI-6: Unify sidebar + overlay search UIs | 2h |
 | 🟢 L | UI-7: Update HelpTooltip shortcuts | 15m |
 

@@ -10,6 +10,7 @@ import { SharkLogo } from "@/components/ui/SharkLogo";
 import { HIGHLIGHT_COLORS } from "@/types/annotation";
 import { MergeDialog } from "@/components/operations/MergeDialog";
 import { SplitDialog } from "@/components/operations/SplitDialog";
+import { PageManager } from "@/components/operations/PageManager";
 import { useFileOpen } from "@/hooks/useFileOpen";
 
 // ─── Icon helper ──────────────────────────────────────────────────────────────
@@ -443,6 +444,7 @@ export const Toolbar: React.FC = () => {
 
   const [showMerge, setShowMerge] = useState(false);
   const [showSplit, setShowSplit] = useState(false);
+  const [showPages, setShowPages] = useState(false);
 
   const { openNativeDialog } = useFileOpen();
 
@@ -459,7 +461,7 @@ export const Toolbar: React.FC = () => {
       aria-label="PDF viewer controls"
     >
       {/* ── Logo ────────────────────────────────────────────── */}
-      <SharkLogo className="h-8 mr-2 flex-shrink-0" />
+      <SharkLogo className="h-10 mr-2 flex-shrink-0" />
 
       <Sep />
 
@@ -607,6 +609,18 @@ export const Toolbar: React.FC = () => {
             <Icon path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </Button>
         </Tooltip>
+        <Tooltip content="Page Manager" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPages(true)}
+            disabled={!hasFile}
+            aria-label="Page Manager"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M4 6h16M4 12h16M4 18h16" />
+          </Button>
+        </Tooltip>
       </div>
 
       <Sep />
@@ -652,6 +666,26 @@ export const Toolbar: React.FC = () => {
     {/* ── Operation dialogs ─────────────────────────────── */}
     {showMerge && <MergeDialog onClose={() => setShowMerge(false)} />}
     {showSplit && <SplitDialog onClose={() => setShowSplit(false)} />}
+    {showPages && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        onClick={(e) => { if (e.target === e.currentTarget) setShowPages(false); }}
+      >
+        <div className="w-[480px] max-h-[80vh] rounded-2xl overflow-hidden bg-surface-900 border border-surface-700 shadow-2xl">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-surface-700">
+            <h2 className="text-sm font-semibold text-white">Page Manager</h2>
+            <button
+              onClick={() => setShowPages(false)}
+              className="toolbar-btn w-7 h-7 p-0"
+              aria-label="Close Page Manager"
+            >
+              <Icon path="M6 18L18 6M6 6l12 12" />
+            </button>
+          </div>
+          <PageManager />
+        </div>
+      </div>
+    )}
     </>
   );
 };
