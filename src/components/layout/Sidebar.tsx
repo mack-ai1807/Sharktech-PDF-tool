@@ -127,6 +127,12 @@ function ThumbnailItem({
   const itemRef  = useRef<HTMLButtonElement>(null);
   const requested = useRef(false);
 
+  useEffect(() => {
+    if (isCurrent && itemRef.current) {
+      itemRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [isCurrent]);
+
   const request = useCallback(() => {
     if (requested.current) return;
     requested.current = true;
