@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useViewerStore } from "@/stores/useViewerStore";
 import { useUIStore, type ToolbarMode } from "@/stores/useUIStore";
 import { useAnnotationStore } from "@/stores/useAnnotationStore";
@@ -89,12 +89,15 @@ const ZOOM_PRESETS = [
 ];
 
 function ZoomControl() {
-  const zoom     = useViewerStore((s) => s.zoom);
-  const zoomMode = useViewerStore((s) => s.zoomMode);
-  const setZoom  = useViewerStore((s) => s.setZoom);
+  const zoom        = useViewerStore((s) => s.zoom);
+  const zoomMode    = useViewerStore((s) => s.zoomMode);
+  const setZoom     = useViewerStore((s) => s.setZoom);
   const setZoomMode = useViewerStore((s) => s.setZoomMode);
-  const zoomIn   = useViewerStore((s) => s.zoomIn);
-  const zoomOut  = useViewerStore((s) => s.zoomOut);
+  const zoomIn      = useViewerStore((s) => s.zoomIn);
+  const zoomOut     = useViewerStore((s) => s.zoomOut);
+
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const displayLabel =
     zoomMode === "fitWidth"
@@ -102,6 +105,29 @@ function ZoomControl() {
       : zoomMode === "fitPage"
         ? "Fit Page"
         : `${Math.round(zoom * 100)}%`;
+
+  // Close on outside click
+  React.useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [open]);
+
+  function handleSelect(value: string | number) {
+    if (value === "fitWidth" || value === "fitPage") setZoomMode(value);
+    else setZoom(Number(value));
+    setOpen(false);
+  }
+
+  const activeValue = zoomMode !== "custom" ? zoomMode : zoom;
 
   return (
     <div className="flex items-center gap-0.5">
@@ -117,26 +143,123 @@ function ZoomControl() {
         </Button>
       </Tooltip>
 
-      <select
-        value={zoomMode !== "custom" ? zoomMode : zoom}
-        className="h-7 px-2 text-xs rounded-lg text-white focus:outline-none cursor-pointer"
-        style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-        aria-label="Zoom level"
-        onChange={(e) => {
-          const v = e.target.value;
-          if (v === "fitWidth" || v === "fitPage") setZoomMode(v);
-          else setZoom(Number(v));
-        }}
-      >
-        <option value={zoomMode !== "custom" ? zoomMode : zoom}>
-          {displayLabel}
-        </option>
-        {ZOOM_PRESETS.map((p) => (
-          <option key={p.label} value={p.value}>
-            {p.label}
-          </option>
-        ))}
-      </select>
+      {/* Custom dropdown wrapper */}
+      <div ref={wrapperRef} style={{ position: "relative" }}>
+        {/* Trigger button */}
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          aria-label="Zoom level"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            height: "28px",
+            padding: "0 8px",
+            fontSize: "12px",
+            color: "rgba(255,255,255,0.85)",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "10px",
+            cursor: "pointer",
+            minWidth: "80px",
+            justifyContent: "space-between",
+            outline: "none",
+            transition: "background 150ms ease, border-color 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.10)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
+          }}
+        >
+          <span style={{ whiteSpace: "nowrap" }}>{displayLabel}</span>
+          {/* Chevron SVG — rotates when open */}
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            aria-hidden="true"
+            style={{
+              flexShrink: 0,
+              stroke: "rgba(255,255,255,0.5)",
+              strokeWidth: 1.5,
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 150ms ease",
+            }}
+          >
+            <path d="M2 3.5L5 6.5L8 3.5" />
+          </svg>
+        </button>
+
+        {/* Dropdown list */}
+        {open && (
+          <ul
+            role="listbox"
+            aria-label="Zoom level options"
+            style={{
+              position: "absolute",
+              top: "calc(100% + 4px)",
+              left: 0,
+              zIndex: 50,
+              minWidth: "120px",
+              maxHeight: "200px",
+              overflowY: "auto",
+              background: "rgba(22,22,28,0.95)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "10px",
+              padding: "4px",
+              margin: 0,
+              listStyle: "none",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
+              // Custom scrollbar via inline style is not directly possible; handled via className below
+            }}
+            className="zoom-dropdown-list"
+          >
+            {ZOOM_PRESETS.map((p) => {
+              const isActive = p.value === activeValue;
+              return (
+                <li
+                  key={p.label}
+                  role="option"
+                  aria-selected={isActive}
+                  onClick={() => handleSelect(p.value)}
+                  style={{
+                    padding: "5px 10px",
+                    fontSize: "12px",
+                    borderRadius: "7px",
+                    cursor: "pointer",
+                    color: isActive ? "#F5CC5A" : "rgba(255,255,255,0.85)",
+                    fontWeight: isActive ? 600 : 400,
+                    background: "transparent",
+                    transition: "background 120ms ease, color 120ms ease",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLLIElement).style.background = "rgba(212,160,23,0.10)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLLIElement).style.background = "transparent";
+                    }
+                  }}
+                >
+                  {p.label}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
 
       <Tooltip content="Zoom in (Ctrl++)" side="bottom">
         <Button
@@ -370,60 +493,62 @@ export const Toolbar: React.FC = () => {
 
       <Sep />
 
-      {/* ── Navigation ─────────────────────────────────────── */}
-      <Tooltip content="First page" side="bottom">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={goToFirst}
-          disabled={!hasFile || currentPage <= 1}
-          aria-label="Go to first page"
-          className="toolbar-btn w-8 h-8 p-0"
-        >
-          <Icon path="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-        </Button>
-      </Tooltip>
+      {/* ── Navigation (grouped pill) ───────────────────────── */}
+      <div className="toolbar-group" role="group" aria-label="Page navigation">
+        <Tooltip content="First page" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goToFirst}
+            disabled={!hasFile || currentPage <= 1}
+            aria-label="Go to first page"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </Button>
+        </Tooltip>
 
-      <Tooltip content="Previous page (↑)" side="bottom">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={prevPage}
-          disabled={!hasFile || currentPage <= 1}
-          aria-label="Previous page"
-          className="toolbar-btn w-8 h-8 p-0"
-        >
-          <Icon path="M15 19l-7-7 7-7" />
-        </Button>
-      </Tooltip>
+        <Tooltip content="Previous page (↑)" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={prevPage}
+            disabled={!hasFile || currentPage <= 1}
+            aria-label="Previous page"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M15 19l-7-7 7-7" />
+          </Button>
+        </Tooltip>
 
-      <PageInput />
+        <PageInput />
 
-      <Tooltip content="Next page (↓)" side="bottom">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={nextPage}
-          disabled={!hasFile || currentPage >= totalPages}
-          aria-label="Next page"
-          className="toolbar-btn w-8 h-8 p-0"
-        >
-          <Icon path="M9 5l7 7-7 7" />
-        </Button>
-      </Tooltip>
+        <Tooltip content="Next page (↓)" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={nextPage}
+            disabled={!hasFile || currentPage >= totalPages}
+            aria-label="Next page"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M9 5l7 7-7 7" />
+          </Button>
+        </Tooltip>
 
-      <Tooltip content="Last page" side="bottom">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={goToLast}
-          disabled={!hasFile || currentPage >= totalPages}
-          aria-label="Go to last page"
-          className="toolbar-btn w-8 h-8 p-0"
-        >
-          <Icon path="M13 5l7 7-7 7M5 5l7 7-7 7" />
-        </Button>
-      </Tooltip>
+        <Tooltip content="Last page" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goToLast}
+            disabled={!hasFile || currentPage >= totalPages}
+            aria-label="Go to last page"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </Button>
+        </Tooltip>
+      </div>
 
       <Sep />
 
@@ -432,8 +557,10 @@ export const Toolbar: React.FC = () => {
 
       <Sep />
 
-      {/* ── Tool modes ─────────────────────────────────────── */}
-      <ToolModeButtons />
+      {/* ── Tool modes (grouped pill) ───────────────────────── */}
+      <div className="toolbar-group" role="group" aria-label="Annotation tools">
+        <ToolModeButtons />
+      </div>
 
       <Sep />
 
@@ -455,30 +582,32 @@ export const Toolbar: React.FC = () => {
 
       <Sep />
 
-      {/* ── PDF Operations ──────────────────────────────────── */}
-      <Tooltip content="Merge PDFs" side="bottom">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowMerge(true)}
-          aria-label="Merge PDFs"
-          className="toolbar-btn w-8 h-8 p-0"
-        >
-          <Icon path="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-        </Button>
-      </Tooltip>
-      <Tooltip content="Split PDF" side="bottom">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowSplit(true)}
-          disabled={!hasFile}
-          aria-label="Split PDF"
-          className="toolbar-btn w-8 h-8 p-0"
-        >
-          <Icon path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </Button>
-      </Tooltip>
+      {/* ── PDF Operations (grouped pill) ───────────────────── */}
+      <div className="toolbar-group" role="group" aria-label="PDF operations">
+        <Tooltip content="Merge PDFs" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowMerge(true)}
+            aria-label="Merge PDFs"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </Button>
+        </Tooltip>
+        <Tooltip content="Split PDF" side="bottom">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSplit(true)}
+            disabled={!hasFile}
+            aria-label="Split PDF"
+            className="toolbar-btn w-8 h-8 p-0"
+          >
+            <Icon path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </Button>
+        </Tooltip>
+      </div>
 
       <Sep />
 

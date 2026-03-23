@@ -18,6 +18,14 @@ export default defineConfig(async () => ({
     watch: {
       ignored: ["**/src-tauri/**"],
     },
+    warmup: {
+      clientFiles: [
+        "./src/main.tsx",
+        "./src/App.tsx",
+        "./src/components/layout/Toolbar.tsx",
+        "./src/components/viewer/PdfDocument.tsx",
+      ],
+    },
   },
   optimizeDeps: {
     include: [
@@ -29,6 +37,31 @@ export default defineConfig(async () => ({
       "zustand",
       "zustand/middleware",
     ],
+  },
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/react/jsx-runtime")
+          ) {
+            return "vendor-react";
+          }
+          if (id.includes("node_modules/pdfjs-dist/")) {
+            return "vendor-pdfjs";
+          }
+          if (id.includes("node_modules/pdf-lib/")) {
+            return "vendor-pdflib";
+          }
+          if (id.includes("node_modules/zustand/")) {
+            return "vendor-zustand";
+          }
+        },
+      },
+    },
   },
   worker: {
     format: "es",

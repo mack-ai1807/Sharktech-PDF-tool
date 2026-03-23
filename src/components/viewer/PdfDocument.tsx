@@ -338,7 +338,7 @@ function PageWrapper({
         </>
       ) : (
         /* Placeholder shimmer while page is off-screen */
-        <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+        <div className="absolute inset-0 skeleton-shimmer" />
       )}
     </div>
   );

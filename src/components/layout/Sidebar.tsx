@@ -169,13 +169,14 @@ function ThumbnailItem({
         }`}
       style={isCurrent ? {
         background: "rgba(212,160,23,0.08)",
-        boxShadow: "0 0 0 1.5px rgba(212,160,23,0.5)",
+        boxShadow: "0 0 0 2px rgba(212,160,23,0.65), 0 0 16px rgba(212,160,23,0.15)",
+        transform: "scale(1.03)",
       } : {}}
       onClick={() => onNavigate(pageNumber)}
       aria-label={`Go to page ${pageNumber}`}
       aria-current={isCurrent ? "page" : undefined}
     >
-      <div className="w-full aspect-[3/4] bg-shark-700 rounded overflow-hidden
+      <div className="relative w-full aspect-[3/4] bg-shark-700 rounded overflow-hidden
                       flex items-center justify-center">
         {imgSrc ? (
           <img
@@ -185,7 +186,7 @@ function ThumbnailItem({
             draggable={false}
           />
         ) : (
-          <span className="text-shark-500 text-[9px] animate-pulse">…</span>
+          <div className="absolute inset-0 skeleton-shimmer" />
         )}
       </div>
       <span className="text-[10px] tabular-nums">{pageNumber}</span>
@@ -248,30 +249,49 @@ export const Sidebar: React.FC = () => {
                  overflow-hidden animate-slide-in"
       aria-label="Document sidebar"
     >
-      {/* ── Tab bar ─────────────────────────────────────────── */}
-      <div className="flex border-b border-shark-800 flex-shrink-0" role="tablist">
-        {(["bookmarks", "thumbnails", "search"] as const).map((tab) => (
-          <button
-            key={tab}
-            role="tab"
-            aria-selected={sidebarTab === tab}
-            className={`flex-1 px-2 py-2.5 text-[10px] font-semibold uppercase tracking-widest
-              border-b-2 transition-all duration-150 cursor-pointer
-              ${
-                sidebarTab === tab
-                  ? "border-[#D4A017]"
-                  : "text-shark-400 border-transparent hover:text-surface-100 hover:border-shark-700"
-              }`}
-          style={sidebarTab === tab ? {
-            color: "#F5CC5A",
-            textShadow: "0 0 12px rgba(212,160,23,0.4)",
-          } : {}}
-            onClick={() => setSidebarTab(tab)}
-          >
-            {TAB_LABELS[tab]}
-          </button>
-        ))}
-      </div>
+      {/* ── Tab bar with sliding indicator ──────────────────── */}
+      {(() => {
+        const TABS = ["bookmarks", "thumbnails", "search"] as const;
+        const activeIdx = TABS.indexOf(sidebarTab as typeof TABS[number]);
+        return (
+          <div className="relative flex border-b border-shark-800 flex-shrink-0" role="tablist">
+            {/* Sliding gold indicator */}
+            <div
+              aria-hidden="true"
+              className="absolute bottom-0 left-0 h-[2px] rounded-full"
+              style={{
+                width: `${100 / TABS.length}%`,
+                background: "linear-gradient(90deg, rgba(212,160,23,0.6) 0%, #F5CC5A 50%, rgba(212,160,23,0.6) 100%)",
+                transform: `translateX(${activeIdx * 100}%)`,
+                transition: "transform 0.22s cubic-bezier(0.16,1,0.3,1)",
+                boxShadow: "0 0 8px rgba(212,160,23,0.5)",
+              }}
+            />
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                role="tab"
+                aria-selected={sidebarTab === tab}
+                className="flex-1 px-2 py-2.5 text-[10px] font-semibold uppercase tracking-widest
+                  transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4A017]/50"
+                style={sidebarTab === tab ? {
+                  color: "#F5CC5A",
+                  textShadow: "0 0 12px rgba(212,160,23,0.4)",
+                } : { color: "rgba(255,255,255,0.35)" }}
+                onMouseEnter={(e) => {
+                  if (sidebarTab !== tab) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)";
+                }}
+                onMouseLeave={(e) => {
+                  if (sidebarTab !== tab) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.35)";
+                }}
+                onClick={() => setSidebarTab(tab)}
+              >
+                {TAB_LABELS[tab]}
+              </button>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* ── Panel content ───────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto flex flex-col">

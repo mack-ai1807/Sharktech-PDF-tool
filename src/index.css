@@ -79,6 +79,11 @@
     color: rgba(255,255,255,0.9);
   }
 
+  .toolbar-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212,160,23,0.55);
+  }
+
   .toolbar-btn.active,
   .toolbar-btn[aria-pressed="true"] {
     background: rgba(212, 160, 23, 0.18);

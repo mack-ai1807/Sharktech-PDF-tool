@@ -22,6 +22,20 @@
 
 ---
 
+## ✅ RESOLVED — Phase 3+4 UI/UX Modernization & Dev Server (2026-03-23)
+
+| ID | Issue | Status | Fix Applied |
+|---|---|---|---|
+| MED-1 | Native `<select>` zoom control | ✅ FIXED | `ZoomControl()` in `Toolbar.tsx` replaced with fully styled custom dropdown — dark glass, gold active state, chevron rotation, outside-click close |
+| UI-3 | Zoom `<select>` uses native browser styling | ✅ FIXED | (covered by MED-1 above) |
+| UI-NEW | No `focus-visible` ring on toolbar buttons | ✅ FIXED | `.toolbar-btn:focus-visible { box-shadow: 0 0 0 2px rgba(212,160,23,0.55); }` added to `index.css` |
+| UI-NEW | Toolbar tool groups had no visual grouping | ✅ FIXED | Navigation, annotation tools, and PDF operations sections now wrapped in `.toolbar-group` pill containers |
+| UI-NEW | Sidebar tab indicator was static `border-b-2` | ✅ FIXED | Replaced with a sliding gold indicator bar using `translateX(${activeIdx * 100}%)` with `transition: transform 0.22s cubic-bezier(0.16,1,0.3,1)` |
+| SERVER-1 | Vite build produced single 1MB+ JS chunk | ✅ FIXED | `vite.config.ts` — added `manualChunks` splitting `vendor-react`, `vendor-pdfjs`, `vendor-pdflib`, `vendor-zustand` into separate chunks |
+| SERVER-NEW | Vite dev cold-start could be faster | ✅ IMPROVED | Added `server.warmup.clientFiles` for main entry points; raised `chunkSizeWarningLimit` to 1500 |
+
+---
+
 ## 🔴 CRITICAL BUGS
 
 ### BUG-1: ~~Ctrl+F search bar is completely non-functional~~ ✅ RESOLVED
@@ -129,7 +143,7 @@ Some shortcuts shown may not match actual implementation.
 
 ---
 
-## ✅ WHAT'S WORKING (v0.2 — Post Phase 2 Fix Session)
+## ✅ WHAT'S WORKING (v0.3 — Post Phase 3+4 UI Modernization)
 - Open File (Ctrl+O + folder icon) — ✅
 - Drag-and-drop PDF open — ✅
 - Multi-page PDF rendering via PDF.js — ✅
@@ -152,6 +166,11 @@ Some shortcuts shown may not match actual implementation.
 - Toast notifications — ✅ NEW (success/error/info, auto-dismiss)
 - SharkTech Global logo — ✅ NEW (gold metallic shark mark + wordmark)
 - `animate-fade-in` CSS animation — ✅ FIXED
+- Custom zoom dropdown — ✅ FIXED (dark glass, gold active, chevron)
+- Toolbar group pills (navigation / tools / PDF ops) — ✅ NEW
+- Focus-visible rings on all toolbar buttons — ✅ NEW
+- Animated sidebar tab indicator (sliding gold bar) — ✅ NEW
+- Vite code splitting (vendor-react, vendor-pdfjs, vendor-pdflib, vendor-zustand) — ✅ NEW
 
 ---
 
@@ -161,7 +180,7 @@ Some shortcuts shown may not match actual implementation.
 | 🟠 H | HIGH-2: Real PDF annotation objects via pdf-lib | 4h |
 | 🟠 H | HIGH-3: Signature flatten/burn-in | 2h |
 | 🟠 H | HIGH-4: Page Manager toolbar button | 30m |
-| 🟡 M | MED-1: Custom zoom dropdown | 1h |
+| ~~🟡 M~~ | ~~MED-1: Custom zoom dropdown~~ | ✅ Done |
 | 🟡 M | MED-4: Wire SearchHighlight into PdfDocument | 1h |
 | 🟡 M | MED-5: Change default highlight color | 15m |
 | 🟢 L | UI-1: Shimmer skeleton for page placeholders | 30m |
